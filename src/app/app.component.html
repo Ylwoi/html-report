@@ -1,12 +1,6 @@
 <!--The content below is only a placeholder and can be replaced.-->
-  <input type="file" (change)="onFileChange($event)" multiple="false" />
-	<table class="sjs-table">
-		<tr *ngFor="let row of data">
-			<td *ngFor="let val of row">
-				{{val}}
-			</td>
-		</tr>
-	</table>
+  <load-xlsx (redirect)="loadedWorkbook=$event"></load-xlsx>
+  <top-sellers [workbook]="loadedWorkbook"></top-sellers>
 	<!-- <button (click)="export()">Export!</button> -->
 
 <router-outlet></router-outlet>

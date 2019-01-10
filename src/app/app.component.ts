@@ -1,13 +1,8 @@
 import { Component } from '@angular/core';
 import * as XLSX from 'xlsx';
 
-type AOA = any[][];
-type SalespersonsAllType = {
-	id: string;
-	name: string;
-	total_pieces: number;
-	total_revenue?: number;
-}
+import { LoadXLSXComponent } from './load-xlsx/load-xlsx.component';
+import { TopSellersComponent } from './top-sellers/top-sellers.component';
 
 @Component({
 	selector: 'app-root',
@@ -15,65 +10,65 @@ type SalespersonsAllType = {
 })
 
 export class AppComponent {
-	data: AOA = [ [1, 2], [3, 4] ];
-	wopts: XLSX.WritingOptions = { bookType: 'xlsx', type: 'array' };
-	fileName: string = 'SheetJS.xlsx';
+	loadedWorkbook: XLSX.WorkBook;
 
-
-	onFileChange(evt: any) {
-		/* wire up file reader */
-		const target: DataTransfer = <DataTransfer>(evt.target);
-		if (target.files.length !== 1) throw new Error('Cannot use multiple files');
-		const reader: FileReader = new FileReader();
-		reader.onload = (e: any) => {
-			/* read workbook */
-			const bstr: string = e.target.result;
-			const wb: XLSX.WorkBook = XLSX.read(bstr, {type: 'binary'});
-      console.log('wb', wb);
-
-			/* grab first sheet */
-			const wsname: string = wb.SheetNames[0];
-			const ws: XLSX.WorkSheet = wb.Sheets[wsname];
-
-			const ws_salesperson: XLSX.WorkSheet = wb.Sheets["Salesperson"];
-      const ws_orders: XLSX.WorkSheet = wb.Sheets["Orders"];
-      const ws_products: XLSX.WorkSheet = wb.Sheets["Products"];
-
-			const json_salesperson = XLSX.utils.sheet_to_json(ws_salesperson);
-			const json_products = XLSX.utils.sheet_to_json(ws_products);
-			const json_orders = XLSX.utils.sheet_to_json(ws_orders);
-
-			var salesPerson: SalespersonsAllType;
-			var allSalesperson = new Array();
-
-			console.log('bef', allSalesperson);
-
-			json_orders.forEach((order)=> {
-				if (order['Order status'] == 'Saved_vod' && order['Account type'] == 'Doctor') {
-					// allSalesperson --- itt voltam
-					salesPerson = {
-						id: order['Salesperson ID'],
-						name: order['Account'],
-						total_pieces: order['Number of product sold'],
-						total_revenue: 0
-					}
-
-					console.log(salesPerson);
-					allSalesperson.push(salesPerson);
-
-					//allSalesperson.push({id: order['Salesperson ID'],name: order['Account'], total_pieces: order['Number of product sold'], total_revenue: 0});
-				}
-			})
-			console.log('HOPE', allSalesperson)
-      // for (let i: number = 1; i<= 900; i++) {
-      //   console.log(ws_products['A'+i]);
-      // }
-
-			/* save data */
-			this.data = <AOA>(XLSX.utils.sheet_to_json(ws_products, {header: 1}));
-		};
-		reader.readAsBinaryString(target.files[0]);
-	}
+	// onFileChange(evt: any) {
+	// 	/* wire up file reader */
+	// 	const target: DataTransfer = <DataTransfer>(evt.target);
+	// 	if (target.files.length !== 1) throw new Error('Cannot use multiple files');
+	// 	const reader: FileReader = new FileReader();
+	// 	reader.onload = (e: any) => {
+	// 		/* read workbook */
+	// 		const bstr: string = e.target.result;
+	// 		const wb: XLSX.WorkBook = XLSX.read(bstr, {type: 'binary'});
+  //     console.log('wb', wb);
+  //
+	// 		/* grab first sheet */
+	// 		const wsname: string = wb.SheetNames[0];
+	// 		const ws: XLSX.WorkSheet = wb.Sheets[wsname];
+  //
+	// 		const ws_salesperson: XLSX.WorkSheet = wb.Sheets["Salesperson"];
+  //     const ws_orders: XLSX.WorkSheet = wb.Sheets["Orders"];
+  //     const ws_products: XLSX.WorkSheet = wb.Sheets["Products"];
+  //
+	// 		const json_salesperson = XLSX.utils.sheet_to_json(ws_salesperson);
+	// 		const json_products = XLSX.utils.sheet_to_json(ws_products);
+	// 		const json_orders = XLSX.utils.sheet_to_json(ws_orders);
+  //
+	// 		var salesPerson: SalespersonsAllType;
+	// 		var allSalesperson = new Array();
+  //
+	// 		console.log('bef', allSalesperson);
+  //
+	// 		json_orders.forEach((order)=> {
+	// 			if (order['Order status'] == 'Saved_vod' && order['Account type'] == 'Doctor') {
+	// 				// allSalesperson --- itt voltam
+	// 				salesPerson = {
+	// 					id: order['Salesperson ID'],
+	// 					name: order['Account'],
+	// 					total_pieces: order['Number of product sold'],
+	// 					total_revenue: 0
+	// 				}
+  //
+	// 				//console.log(salesPerson);
+	// 				allSalesperson.push(salesPerson);
+  //
+	// 				//allSalesperson.push({id: order['Salesperson ID'],name: order['Account'], total_pieces: order['Number of product sold'], total_revenue: 0});
+	// 			}
+	// 		})
+	// 		console.log('HOPE', JsonToTable(allSalesperson))
+  //     // for (let i: number = 1; i<= 900; i++) {
+  //     //   console.log(ws_products['A'+i]);
+  //     // }
+  //
+	// 		/* save data */
+	// 		//this.data = <AOA>(XLSX.utils.sheet_to_json(ws_products, {header: 1}));
+	// 		console.log(ws_products);
+	// 		console.log(XLSX.utils.sheet_to_json(ws_products, {header: 1}))
+	// 		this.data = <AOA>(JsonToTable(allSalesperson));
+	// 	};
+	// 	reader.readAsBinaryString(target.files[0]);
+	// }
 
 	// export(): void {
 	// 	/* generate worksheet */
