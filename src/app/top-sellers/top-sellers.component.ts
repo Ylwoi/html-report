@@ -37,25 +37,61 @@ export class TopSellersComponent implements OnInit, OnChanges {
     if (this.workbook) {
       const ws_salesperson: XLSX.WorkSheet = this.workbook.Sheets["Salesperson"];
       const ws_orders: XLSX.WorkSheet = this.workbook.Sheets["Orders"];
+			const ws_products: XLSX.WorkSheet = this.workbook.Sheets["Products"];
 
       const json_salesperson = XLSX.utils.sheet_to_json(ws_salesperson);
       const json_orders = XLSX.utils.sheet_to_json(ws_orders);
+			const json_products = XLSX.utils.sheet_to_json(ws_products);
 
       var salesPerson: SalespersonsAllType;
     	var allSalesperson = new Array();
 
+			console.log(json_products);
       json_orders.forEach((order)=> {
-  			if (order['Order status'] == 'Saved_vod' && order['Account type'] == 'Doctor') {
-  				// allSalesperson --- itt voltam
-  				salesPerson = {
-  					id: order['Salesperson ID'],
-  					name: order['Account'],
-  					total_pieces: order['Number of product sold'],
-  					total_revenue: 0
-  				}
+  			if (order['Order status'] == 'Saved_vod') {
+					salesPerson = {
+						id: order['Salesperson ID'],
+						name: '',
+						total_pieces: order['Number of product sold'],
+						total_revenue: 0
+					}
+					for (let person of json_salesperson) {
+						if (person['Id'] == salesPerson.id) {
+							salesPerson.name = person['Name'];
+						}
+					}
+					if ( allSalesperson.length == 0 ) {
+						for (let product of json_products) {
+							if (product['Product Id'] == order['Product Id']) {
+								salesPerson.total_revenue = product['Unit price'] * salesPerson.total_pieces;
+								break;
+							}
+						}
+						allSalesperson.push(salesPerson);
+					} else {
+						for (let i: number = 0; i < allSalesperson.length; i++) {
+							if (allSalesperson[i].id == order['Salesperson ID']) {
+								allSalesperson[i].total_pieces += order['Number of product sold'];
+								for (let product of json_products) {
+									if (product['Product Id'] == order['Product Id']) {
+										allSalesperson[i].total_revenue += product['Unit price'] * order['Number of product sold'];
+										break;
+									}
+								}
+								break;
+							} else {
+								if (i == allSalesperson.length - 1) {
+									allSalesperson.push(salesPerson);
+								}
+							}
+						}
+					}
 
-  				//console.log(salesPerson);
-  				allSalesperson.push(salesPerson);
+					// for (let salesP of allSalesperson) {
+					// 	if (salesP.id == order['Salesperson ID']) {
+					// 		salesP.total_pieces += order['Number of product sold'];
+					// 	}
+					// }
 
   				//allSalesperson.push({id: order['Salesperson ID'],name: order['Account'], total_pieces: order['Number of product sold'], total_revenue: 0});
   			}
