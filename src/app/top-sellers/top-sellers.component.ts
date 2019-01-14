@@ -18,7 +18,8 @@ type SalespersonsAllType = {
 })
 export class TopSellersComponent implements OnInit, OnChanges {
   @Input() workbook: XLSX.WorkBook;
-  data: AOA;
+  table1: AOA;
+  table2: AOA;
 	wopts: XLSX.WritingOptions;
 	//fileName: string = 'SheetJS.xlsx';
 
@@ -33,6 +34,17 @@ export class TopSellersComponent implements OnInit, OnChanges {
     this.showTable();
   }
 
+  predicateBy(prop: string){
+   return (a,b) =>{
+      if( a[prop] > b[prop]){
+          return -1;
+      }else if( a[prop] < b[prop] ){
+          return 1;
+      }
+      return 0;
+   }
+}
+
   showTable() {
     if (this.workbook) {
       const ws_salesperson: XLSX.WorkSheet = this.workbook.Sheets["Salesperson"];
@@ -46,7 +58,6 @@ export class TopSellersComponent implements OnInit, OnChanges {
       var salesPerson: SalespersonsAllType;
     	var allSalesperson = new Array();
 
-			console.log(json_products);
       json_orders.forEach((order)=> {
   			if (order['Order status'] == 'Saved_vod') {
 					salesPerson = {
@@ -96,7 +107,11 @@ export class TopSellersComponent implements OnInit, OnChanges {
   				//allSalesperson.push({id: order['Salesperson ID'],name: order['Account'], total_pieces: order['Number of product sold'], total_revenue: 0});
   			}
   		})
-      this.data = <AOA>(JsonToTable(allSalesperson));
+      allSalesperson.sort(this.predicateBy('total_pieces'));
+      this.table1 = <AOA>(JsonToTable(allSalesperson.slice(0,3)));
+
+      allSalesperson.sort(this.predicateBy('total_revenue'));  
+      this.table2 = <AOA>(JsonToTable(allSalesperson.slice(0,3)));
     }
   }
 

@@ -1,5 +1,12 @@
 <table class="sjs-table">
-  <tr *ngFor="let row of data">
+  <tr *ngFor="let row of table1">
+    <td *ngFor="let val of row">
+      {{val}}
+    </td>
+  </tr>
+</table>
+<table class="sjs-table">
+  <tr *ngFor="let row of table2">
     <td *ngFor="let val of row">
       {{val}}
     </td>
