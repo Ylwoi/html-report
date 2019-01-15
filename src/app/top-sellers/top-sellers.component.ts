@@ -1,6 +1,7 @@
 import { Component, OnInit, OnChanges, Input } from '@angular/core';
 import * as XLSX from 'xlsx';
 import * as JsonToTable from 'json-to-table';
+//import Chart from 'chart.js';
 
 
 type AOA = any[][];
@@ -21,7 +22,16 @@ export class TopSellersComponent implements OnInit, OnChanges {
   table1: AOA;
   table2: AOA;
 	wopts: XLSX.WritingOptions;
-	//fileName: string = 'SheetJS.xlsx';
+	public barChartOptions:any = {
+    scaleShowVerticalLines: false,
+    responsive: true
+  };
+  public barChartLabels:string[] = ['Jan', 'Feb', 'March', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  public barChartType:string = 'line';
+  public barChartLegend:boolean = true;
+	public barChartData: any[] = [
+		{data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], label: 'Sold units'}
+	];
 
   constructor() {
     //this.data = [ [1, 2], [3, 4] ];
@@ -43,7 +53,11 @@ export class TopSellersComponent implements OnInit, OnChanges {
       }
       return 0;
    }
-}
+	}
+
+	excelDateToJSDate(date) {
+  	return new Date(Math.round((date - 25569)*86400*1000));
+	}
 
   showTable() {
     if (this.workbook) {
@@ -59,7 +73,7 @@ export class TopSellersComponent implements OnInit, OnChanges {
     	var allSalesperson = new Array();
 
       json_orders.forEach((order)=> {
-  			if (order['Order status'] == 'Saved_vod') {
+  			if (order['Order status'] == 'Saved_vod' || order['Order status'] == 'Submitted_vod') {
 					salesPerson = {
 						id: order['Salesperson ID'],
 						name: '',
@@ -106,12 +120,16 @@ export class TopSellersComponent implements OnInit, OnChanges {
 
   				//allSalesperson.push({id: order['Salesperson ID'],name: order['Account'], total_pieces: order['Number of product sold'], total_revenue: 0});
   			}
+				let order_month = this.excelDateToJSDate(order['Order date']).getMonth();
+				this.barChartData[0].data[order_month] += order['Number of product sold'];
+				console.log(order_month);
   		})
       allSalesperson.sort(this.predicateBy('total_pieces'));
       this.table1 = <AOA>(JsonToTable(allSalesperson.slice(0,3)));
 
-      allSalesperson.sort(this.predicateBy('total_revenue'));  
+      allSalesperson.sort(this.predicateBy('total_revenue'));
       this.table2 = <AOA>(JsonToTable(allSalesperson.slice(0,3)));
+
     }
   }
 
